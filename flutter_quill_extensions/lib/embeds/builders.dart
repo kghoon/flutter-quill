@@ -33,27 +33,17 @@ class ImageEmbedBuilder implements EmbedBuilder {
     Tuple2<double?, double?>? _widthHeight;
     final style = node.style.attributes['style'];
     if (base.isMobile() && style != null) {
-      final _attrs = base.parseKeyValuePairs(style.value.toString(), {
-        Attribute.mobileWidth,
-        Attribute.mobileHeight,
-        Attribute.mobileMargin,
-        Attribute.mobileAlignment
-      });
+      final _attrs = base.parseKeyValuePairs(style.value.toString(),
+          {Attribute.mobileWidth, Attribute.mobileHeight, Attribute.mobileMargin, Attribute.mobileAlignment});
       if (_attrs.isNotEmpty) {
-        assert(
-            _attrs[Attribute.mobileWidth] != null &&
-                _attrs[Attribute.mobileHeight] != null,
+        assert(_attrs[Attribute.mobileWidth] != null && _attrs[Attribute.mobileHeight] != null,
             'mobileWidth and mobileHeight must be specified');
         final w = double.parse(_attrs[Attribute.mobileWidth]!);
         final h = double.parse(_attrs[Attribute.mobileHeight]!);
         _widthHeight = Tuple2(w, h);
-        final m = _attrs[Attribute.mobileMargin] == null
-            ? 0.0
-            : double.parse(_attrs[Attribute.mobileMargin]!);
+        final m = _attrs[Attribute.mobileMargin] == null ? 0.0 : double.parse(_attrs[Attribute.mobileMargin]!);
         final a = base.getAlignment(_attrs[Attribute.mobileAlignment]);
-        image = Padding(
-            padding: EdgeInsets.all(m),
-            child: imageByUrl(imageUrl, width: w, height: h, alignment: a));
+        image = Padding(padding: EdgeInsets.all(m), child: imageByUrl(imageUrl, width: w, height: h, alignment: a));
       }
     }
 
@@ -80,14 +70,11 @@ class ImageEmbedBuilder implements EmbedBuilder {
                             final _screenSize = MediaQuery.of(context).size;
                             return ImageResizer(
                                 onImageResize: (w, h) {
-                                  final res = getEmbedNode(
-                                      controller, controller.selection.start);
-                                  final attr = base.replaceStyleString(
-                                      getImageStyleString(controller), w, h);
+                                  final res = getEmbedNode(controller, controller.selection.start);
+                                  final attr = base.replaceStyleString(getImageStyleString(controller), w, h);
                                   controller
                                     ..skipRequestKeyboard = true
-                                    ..formatText(
-                                        res.item1, 1, StyleAttribute(attr));
+                                    ..formatText(res.item1, 1, StyleAttribute(attr));
                                 },
                                 imageWidth: _widthHeight?.item1,
                                 imageHeight: _widthHeight?.item2,
@@ -101,12 +88,9 @@ class ImageEmbedBuilder implements EmbedBuilder {
                     color: Colors.cyanAccent,
                     text: 'Copy'.i18n,
                     onPressed: () {
-                      final imageNode =
-                          getEmbedNode(controller, controller.selection.start)
-                              .item2;
+                      final imageNode = getEmbedNode(controller, controller.selection.start).item2;
                       final imageUrl = imageNode.value.data;
-                      controller.copiedImageUrl =
-                          Tuple2(imageUrl, getImageStyleString(controller));
+                      controller.copiedImageUrl = Tuple2(imageUrl, getImageStyleString(controller));
                       Navigator.pop(context);
                     },
                   );
@@ -115,20 +99,15 @@ class ImageEmbedBuilder implements EmbedBuilder {
                     color: Colors.red.shade200,
                     text: 'Remove'.i18n,
                     onPressed: () {
-                      final offset =
-                          getEmbedNode(controller, controller.selection.start)
-                              .item1;
-                      controller.replaceText(offset, 1, '',
-                          TextSelection.collapsed(offset: offset));
+                      final offset = getEmbedNode(controller, controller.selection.start).item1;
+                      controller.replaceText(offset, 1, '', TextSelection.collapsed(offset: offset));
                       Navigator.pop(context);
                     },
                   );
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
                     child: SimpleDialog(
-                        shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
                         children: [resizeOption, copyOption, removeOption]),
                   );
                 });
@@ -163,10 +142,6 @@ class VideoEmbedBuilder implements EmbedBuilder {
     assert(!kIsWeb, 'Please provide video EmbedBuilder for Web');
 
     final videoUrl = node.value.data;
-    if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
-      return YoutubeVideoApp(
-          videoUrl: videoUrl, context: context, readOnly: readOnly);
-    }
     return VideoApp(
       videoUrl: videoUrl,
       context: context,
@@ -208,8 +183,7 @@ class FormulaEmbedBuilder implements EmbedBuilder {
   }
 }
 
-Widget _menuOptionsForReadonlyImage(
-    BuildContext context, String imageUrl, Widget image) {
+Widget _menuOptionsForReadonlyImage(BuildContext context, String imageUrl, Widget image) {
   return GestureDetector(
       onTap: () {
         showDialog(
@@ -222,8 +196,7 @@ Widget _menuOptionsForReadonlyImage(
                 onPressed: () {
                   imageUrl = appendFileExtensionToImageUrl(imageUrl);
                   GallerySaver.saveImage(imageUrl).then((_) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('Saved'.i18n)));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Saved'.i18n)));
                     Navigator.pop(context);
                   });
                 },
@@ -234,17 +207,13 @@ Widget _menuOptionsForReadonlyImage(
                 text: 'Zoom'.i18n,
                 onPressed: () {
                   Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ImageTapWrapper(imageUrl: imageUrl)));
+                      context, MaterialPageRoute(builder: (context) => ImageTapWrapper(imageUrl: imageUrl)));
                 },
               );
               return Padding(
                 padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
                 child: SimpleDialog(
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
                     children: [saveOption, zoomOption]),
               );
             });
@@ -254,11 +223,7 @@ Widget _menuOptionsForReadonlyImage(
 
 class _SimpleDialogItem extends StatelessWidget {
   const _SimpleDialogItem(
-      {required this.icon,
-      required this.color,
-      required this.text,
-      required this.onPressed,
-      Key? key})
+      {required this.icon, required this.color, required this.text, required this.onPressed, Key? key})
       : super(key: key);
 
   final IconData icon;
@@ -275,8 +240,7 @@ class _SimpleDialogItem extends StatelessWidget {
           Icon(icon, size: 36, color: color),
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 16),
-            child:
-                Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
